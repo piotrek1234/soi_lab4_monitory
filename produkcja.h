@@ -20,7 +20,7 @@ public:
 private:
 	Fifo fifo;
 	int suma;
-	Condition min3;
+	Condition ponad3;
 	Condition pelny;
 	Condition suma20;
 	static const int ZAKRES = 10;
@@ -35,12 +35,13 @@ void Produkcja::produkujA()
 
 	if(fifo.size() >= 9)
 	{
-		cout << "Producent A czeka na wolne miejsca " << fifo << endl;
+		cout << "Producent A czeka na wolne miejsce " << fifo << endl;
 		wait(pelny);
 	}
 
 	if(suma >= 20)
 	{
+		cout << "Producent A czeka na sume < 20 " << fifo << endl;
 		wait(suma20);
 	}
 		
@@ -49,7 +50,7 @@ void Produkcja::produkujA()
 	cout << "Producent A wstawia element (" << elem << "). Suma: " << suma << " " << fifo << endl;
 
 	if(fifo.size() > 3)
-		signal(min3);
+		signal(ponad3);
 
 	leave();
 }
@@ -62,13 +63,17 @@ void Produkcja::produkujB()
 	enter();
 
 	if(fifo.size() >= 9)
+	{
+		cout << "Producent B czeka na wolne miejsce " << fifo << endl;
 		wait(pelny);
+	}
 
 	fifo.push(elem);
 	suma += elem;
+	cout << "Producent B wstawia element (" << elem << "). Suma: " << suma << " " << fifo << endl;
 
 	if(fifo.size() > 3)
-		signal(min3);
+		signal(ponad3);
 
 	leave();
 }
@@ -78,13 +83,17 @@ void Produkcja::konsumujA()
 	enter();
 
 	if(fifo.size() <= 3)
-		wait(min3);
+	{
+		wait(ponad3);
+		cout << "Konsument A czeka na ponad 3 elementy " << fifo << endl;
+	}
 
 	int elem = fifo.pop();
 	suma -= elem;
 	
-	cout << "A zdejmuje " << elem << ". Rozmiar: " << fifo.size() << ", suma: " << suma << endl;
+	cout << "Producent A zdejmuje (" << elem << "). Rozmiar: " << fifo.size() << ", suma: " << suma << ' ' << fifo << endl;
 
+	//ewentualnie warunek żeby puścić oba sygnały na raz
 	signal(pelny);
 
 	if(suma < 20)
@@ -98,12 +107,15 @@ void Produkcja::konsumujB()
 	enter();
 
 	if(fifo.size() <= 3)
-		wait(min3);
+	{
+		wait(ponad3);
+		cout << "Konsument B czeka na ponad 3 elementy " << fifo << endl;
+	}
 
 	int elem = fifo.pop();
 	suma -= elem;
 	
-	cout << "B zdejmuje " << elem << ". Rozmiar: " << fifo.size() << ", suma: " << suma << endl;
+	cout << "B zdejmuje " << elem << ". Rozmiar: " << fifo.size() << ", suma: " << suma << ' ' << fifo << endl;
 
 	signal(pelny);
 	

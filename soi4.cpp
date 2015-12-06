@@ -1,6 +1,7 @@
 #include <iostream>
 #include <thread>
 #include "produkcja.h"
+#include "delay.h"
 
 using namespace std;
 
@@ -10,25 +11,37 @@ Produkcja prod;
 void produkujA()
 {
 	for(int i=0; i<ILE_RAZY; ++i)
+	{
+		delay();
 		prod.produkujA();
+	}
 }
 
 void produkujB()
 {
 	for(int i=0; i<ILE_RAZY; ++i)
+	{
+		delay();
 		prod.produkujB();
+	}
 }
 
 void konsumujA()
 {
 	for(int i=0; i<ILE_RAZY; ++i)
+	{
+		delay();
 		prod.konsumujA();
+	}
 }
 
 void konsumujB()
 {
 	for(int i=0; i<ILE_RAZY; ++i)
+	{
+		delay();
 		prod.konsumujB();
+	}
 }
 
 int main(void)
