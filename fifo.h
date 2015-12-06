@@ -2,6 +2,7 @@
 #define FIFO_H
 
 #include <list>
+#include <ostream>
 
 using namespace std;
 
@@ -12,6 +13,8 @@ public:
 	int get();
 	int pop();
 	void push(int val);
+	int size() { return buf.size(); }
+	friend ostream& operator<< (ostream& os, const Fifo& fifo);
 private:
 	list<int> buf;
 };
@@ -31,6 +34,14 @@ int Fifo::pop()
 void Fifo::push(int val)
 {
 	buf.push_back(val);
+}
+
+ostream& operator<< (ostream& os, const Fifo& fifo)
+{
+	for(auto it = fifo.buf.begin(); it != fifo.buf.end(); ++it)
+		os << '[' << *it << ']';
+	
+	return os;
 }
 
 #endif
