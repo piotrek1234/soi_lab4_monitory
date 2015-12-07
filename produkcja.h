@@ -4,19 +4,19 @@
 #include <iostream>
 #include "monitor.h"
 #include "fifo.h"
-#include <cstdlib>
-#include <ctime>
+#include <random>
 
 using namespace std;
 
 class Produkcja : public Monitor{
 public:
-	Produkcja() : suma(0) { srand(time(0)); }
+	Produkcja() : suma(0) { distribution =  uniform_int_distribution<int>(0,9); }
 	~Produkcja() {}
 	void produkujA();
 	void produkujB();
 	void konsumujA();
 	void konsumujB();
+	int losuj() { return distribution(generator); }
 private:
 	Fifo fifo;
 	int suma;
@@ -24,12 +24,14 @@ private:
 	Condition pelny;
 	Condition suma20;
 	static const int ZAKRES = 10;
+	default_random_engine generator;
+ 	uniform_int_distribution<int> distribution;
 };
 
 // producentA wstawia tylko jeśli suma elementów jest mniejsza niż 20
 void Produkcja::produkujA()
 {
-	int elem = rand() % ZAKRES;
+	int elem = losuj();
 
 	enter();
 
@@ -58,7 +60,7 @@ void Produkcja::produkujA()
 // producent B może wstawiać bez względu na dodatkowe warunki
 void Produkcja::produkujB()
 {
-	int elem = rand() % ZAKRES;
+	int elem = losuj();
 
 	enter();
 
@@ -84,14 +86,15 @@ void Produkcja::konsumujA()
 
 	if(fifo.size() <= 3)
 	{
-		wait(ponad3);
 		cout << "Konsument A czeka na ponad 3 elementy " << fifo << endl;
+		wait(ponad3);
+		
 	}
 
 	int elem = fifo.pop();
 	suma -= elem;
 	
-	cout << "Producent A zdejmuje (" << elem << "). Rozmiar: " << fifo.size() << ", suma: " << suma << ' ' << fifo << endl;
+	cout << "Konsument A zdejmuje (" << elem << "). Rozmiar: " << fifo.size() << ", suma: " << suma << ' ' << fifo << endl;
 
 	//ewentualnie warunek żeby puścić oba sygnały na raz
 	signal(pelny);
@@ -108,14 +111,14 @@ void Produkcja::konsumujB()
 
 	if(fifo.size() <= 3)
 	{
-		wait(ponad3);
 		cout << "Konsument B czeka na ponad 3 elementy " << fifo << endl;
+		wait(ponad3);
 	}
 
 	int elem = fifo.pop();
 	suma -= elem;
 	
-	cout << "B zdejmuje " << elem << ". Rozmiar: " << fifo.size() << ", suma: " << suma << ' ' << fifo << endl;
+	cout << "Konsument B zdejmuje " << elem << ". Rozmiar: " << fifo.size() << ", suma: " << suma << ' ' << fifo << endl;
 
 	signal(pelny);
 	
