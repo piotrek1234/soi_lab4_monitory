@@ -38,8 +38,15 @@ void Fifo::push(int val)
 
 ostream& operator<< (ostream& os, const Fifo& fifo)
 {
+	int num = 9;
 	for(auto it = fifo.buf.begin(); it != fifo.buf.end(); ++it)
+	{
 		os << '[' << *it << ']';
+		--num;
+	}
+	
+	for(int i=0; i<num; ++i)
+		os << "[ ]";
 	
 	return os;
 }

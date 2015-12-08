@@ -2,15 +2,20 @@
 #define PRODUKCJA_H
 
 #include <iostream>
+#include <random>
+#include <iomanip>
 #include "monitor.h"
 #include "fifo.h"
-#include <random>
 
 using namespace std;
 
 class Produkcja : public Monitor{
 public:
-	Produkcja() : suma(0) { distribution =  uniform_int_distribution<int>(0,9); }
+	Produkcja() : suma(0)
+	{ 
+		generator = default_random_engine(rd());
+		distribution =  uniform_int_distribution<int>(0,9);
+	}
 	~Produkcja() {}
 	void produkujA();
 	void produkujB();
@@ -24,6 +29,7 @@ private:
 	Condition pelny;
 	Condition suma20;
 	static const int ZAKRES = 10;
+	random_device rd;
 	default_random_engine generator;
  	uniform_int_distribution<int> distribution;
 };
@@ -37,19 +43,19 @@ void Produkcja::produkujA()
 
 	if(fifo.size() >= 9)
 	{
-		cout << "Producent A czeka na wolne miejsce " << fifo << endl;
+		cout << "Producent A czeka na wolne miejsce       " << fifo << endl;
 		wait(pelny);
 	}
 
 	if(suma >= 20)
 	{
-		cout << "Producent A czeka na sume < 20 " << fifo << endl;
+		cout << "Producent A czeka na sume < 20           " << fifo << endl;
 		wait(suma20);
 	}
 		
 	fifo.push(elem);
 	suma += elem;
-	cout << "Producent A wstawia element (" << elem << "). Suma: " << suma << " " << fifo << endl;
+	cout << "Producent A wstawia (" << elem << "). Suma: " << setw(2) << suma << "        " << fifo << endl;
 
 	if(fifo.size() > 3)
 		signal(ponad3);
@@ -66,13 +72,13 @@ void Produkcja::produkujB()
 
 	if(fifo.size() >= 9)
 	{
-		cout << "Producent B czeka na wolne miejsce " << fifo << endl;
+		cout << "Producent B czeka na wolne miejsce       " << fifo << endl;
 		wait(pelny);
 	}
 
 	fifo.push(elem);
 	suma += elem;
-	cout << "Producent B wstawia element (" << elem << "). Suma: " << suma << " " << fifo << endl;
+	cout << "Producent B wstawia (" << elem << "). Suma: " << setw(2) << suma << "        " << fifo << endl;
 
 	if(fifo.size() > 3)
 		signal(ponad3);
@@ -86,7 +92,7 @@ void Produkcja::konsumujA()
 
 	if(fifo.size() <= 3)
 	{
-		cout << "Konsument A czeka na ponad 3 elementy " << fifo << endl;
+		cout << "Konsument A czeka na ponad 3 elementy    " << fifo << endl;
 		wait(ponad3);
 		
 	}
@@ -94,7 +100,7 @@ void Produkcja::konsumujA()
 	int elem = fifo.pop();
 	suma -= elem;
 	
-	cout << "Konsument A zdejmuje (" << elem << "). Rozmiar: " << fifo.size() << ", suma: " << suma << ' ' << fifo << endl;
+	cout << "Konsument A zdejmuje (" << elem << "). Suma: " << setw(2) << suma << ", n: " << fifo.size() << " " << fifo << endl;
 
 	//ewentualnie warunek żeby puścić oba sygnały na raz
 	signal(pelny);
@@ -111,14 +117,14 @@ void Produkcja::konsumujB()
 
 	if(fifo.size() <= 3)
 	{
-		cout << "Konsument B czeka na ponad 3 elementy " << fifo << endl;
+		cout << "Konsument B czeka na ponad 3 elementy    " << fifo << endl;
 		wait(ponad3);
 	}
 
 	int elem = fifo.pop();
 	suma -= elem;
 	
-	cout << "Konsument B zdejmuje " << elem << ". Rozmiar: " << fifo.size() << ", suma: " << suma << ' ' << fifo << endl;
+	cout << "Konsument B zdejmuje (" << elem << "). Suma: " << setw(2) << suma << ", n: " << fifo.size() << " " << fifo << endl;
 
 	signal(pelny);
 	

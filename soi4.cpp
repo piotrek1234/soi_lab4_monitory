@@ -31,8 +31,6 @@ void konsumujA()
 	for(int i=0; i<ILE_RAZY; ++i)
 	{
 		delay();
-		delay();
-		delay();
 		prod.konsumujA();
 	}
 }
@@ -41,8 +39,6 @@ void konsumujB()
 {
 	for(int i=0; i<ILE_RAZY; ++i)
 	{
-		delay();
-		delay();
 		delay();
 		prod.konsumujB();
 	}
